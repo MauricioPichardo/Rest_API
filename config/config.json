@@ -1,0 +1,17 @@
+{
+  "development": {
+    "storage": "fsjstd-restapi.db",
+    "dialect": "sqlite",
+    "freezeTableName": true
+  },
+  "test": {
+    "storage": "fsjstd-restapi.db",
+    "dialect": "sqlite",
+    "freezeTableName": true
+  },
+  "production": {
+    "storage": "fsjstd-restapi.db",
+    "dialect": "sqlite",
+    "freezeTableName": true
+  }
+}
