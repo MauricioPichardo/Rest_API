@@ -30,6 +30,9 @@ router.post('/', [
   check('password')
     .exists({ checkNull: true, checkFalsy: true })
     .withMessage('Please provide a value for "password"'),
+  check('emailAddress')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "email"'),
 ],(async(req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -46,6 +49,7 @@ router.post('/', [
                   lastName: req.body.lastName,
                   emailAddress: req.body.emailAddress,
                   password: basePasswod  })
+                  res.location('/');
         return res.status(201).end();
 
     } catch(error) {
@@ -56,6 +60,7 @@ router.post('/', [
                   lastName: req.body.lastName,
                   emailAddress: req.body.emailAddress,
                   password: basePasswod });
+                                    res.location('/');
         return res.status(201).end();
 
 

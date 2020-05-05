@@ -7,7 +7,7 @@ const { check, validationResult } = require('express-validator');
 const auth = require('basic-auth');
 const { Op } = require("sequelize");
 const authenticateUser= require('./authentication');
-
+const User = require('../models/').User;
 
 function asyncHandler(cb){
   return async(req, res, next) => {
@@ -22,7 +22,13 @@ function asyncHandler(cb){
 /* Returns all Courses. */
 router.get("/", asyncHandler(async(req, res) => {
   try {
-    const courses = await Course.findAll();
+    const courses = await Course.findAll({
+  include: [
+    {
+      model: User,
+    },
+  ],
+});
         courses.every(course => course instanceof Course);
         res.end(JSON.stringify(courses, null, 2));
   } catch(error) {
@@ -32,6 +38,22 @@ router.get("/", asyncHandler(async(req, res) => {
 
 //New course wiht Authentication -working
 router.post('/', authenticateUser,async(req, res) => {
+  const errors = [];
+
+  // Validate that we have a `name` value.
+  if (!req.body.title) {
+    errors.push('Please provide a value for "title"');
+  }
+
+  // Validate that we have an `email` value.
+  if (!req.body.description) {
+    errors.push('Please provide a value for "description"');
+  }
+  if (errors.length > 0) {
+  // Return the validation errors to the client.
+  res.status(400).json({ errors });
+} else {
+
   let course;
   try {
       course = await Course.create({
@@ -41,7 +63,8 @@ router.post('/', authenticateUser,async(req, res) => {
                 materialsNeeded: req.body.materialsNeeded,
                 userId: req.body.userId
               });
-          res.json({course});
+      let id=course.id
+      res.location(`/course/${id}`);
       return res.status(201).end();
 
   } catch(error) {
@@ -53,13 +76,14 @@ router.post('/', authenticateUser,async(req, res) => {
         materialsNeeded: req.body.materialsNeeded,
         userId: req.body.userId
       });
-        res.json({course});
+      let id=course.id
+      res.location(`/course/${id}`);
       return res.status(201).end();
 
     } else {
       throw error;
     }
-  }
+  }}
 });
 
 
@@ -75,6 +99,7 @@ router.get('/:id', asyncHandler(async(req, res) => {
       userId: course.userId
 
     });
+    return res.status(201).end();
   } else {
     res.sendStatus(404);
   }
@@ -83,6 +108,22 @@ router.get('/:id', asyncHandler(async(req, res) => {
 
 //update course wiht Authentication
 router.put('/:id', authenticateUser,async(req, res) => {
+  const errors = [];
+
+  // Validate that we have a `name` value.
+  if (!req.body.title) {
+    errors.push('Please provide a value for "title"');
+  }
+
+  // Validate that we have an `email` value.
+  if (!req.body.description) {
+    errors.push('Please provide a value for "description"');
+  }
+  if (errors.length > 0) {
+  // Return the validation errors to the client.
+  res.status(400).json({ errors });
+} else {
+
   let course;
   try {
         course=await Course.findByPk(req.params.id);
@@ -91,8 +132,8 @@ router.put('/:id', authenticateUser,async(req, res) => {
                                       estimatedTime: req.body.estimatedTime,
                                       materialsNeeded: req.body.materialsNeeded,
                                       userId: req.body.userId});
-        res.json({course});
-        return res.status(201).end();
+
+        return res.status(204).end();
   } catch (error) {
       if(error.name === "SequelizeValidationError") {
         course=await Course.findByPk(req.params.id);
@@ -101,12 +142,11 @@ router.put('/:id', authenticateUser,async(req, res) => {
                                       estimatedTime: req.body.estimatedTime,
                                       materialsNeeded: req.body.materialsNeeded,
                                       userId: req.body.userId});
-        course.id = req.params.id;
-        res.json({course});
-        return res.status(201).end();
+
+        return res.status(204).end();
     } else {
             throw error
-          }}});
+          }}}});
 
 
 
@@ -117,8 +157,7 @@ router.delete('/:id', authenticateUser,asyncHandler(async (req ,res) => {
   try {
   const course = await Course.findByPk(req.params.id);
     await course.destroy();
-    res.json({
-      message: `Deletion of Course: ${req.params.id}`});
+    res.status(204).end();
 
   } catch (error) {
           return  next(error)
