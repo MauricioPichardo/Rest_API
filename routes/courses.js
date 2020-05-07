@@ -64,7 +64,7 @@ router.post('/', authenticateUser,async(req, res) => {
                 userId: req.body.userId
               });
       let id=course.id
-      res.location(`/course/${id}`);
+      res.location(`/courses/${id}`);
       return res.status(201).end();
 
   } catch(error) {
@@ -77,7 +77,7 @@ router.post('/', authenticateUser,async(req, res) => {
         userId: req.body.userId
       });
       let id=course.id
-      res.location(`/course/${id}`);
+      res.location(`/courses/${id}`);
       return res.status(201).end();
 
     } else {
